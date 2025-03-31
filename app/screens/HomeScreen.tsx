@@ -21,6 +21,12 @@ export default function HomeScreen() {
     getRecipes();
   }, []);
 
+  const handleChangeCategory = (category: string) => {
+    getRecipes(category);
+    setActiveCategory(category);
+    setMeals([]);
+  };
+
   const getCategories = async () => {
     try {
       const response = await axios.get(
@@ -129,14 +135,14 @@ export default function HomeScreen() {
             <Categories
               categories={categories}
               activeCategory={activeCategory}
-              setActiveCategory={setActiveCategory}
+              handleChangeCategory={handleChangeCategory}
             />
           )}
         </View>
 
         {/* recipes */}
         <View>
-          <Recipes meals={meals} />
+          <Recipes meals={meals} categories={categories} />
         </View>
       </ScrollView>
     </View>

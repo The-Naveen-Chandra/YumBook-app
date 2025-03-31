@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Image, TextInput } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import {
@@ -6,10 +7,61 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { BellIcon, MagnifyingGlassIcon } from "react-native-heroicons/outline";
-import Categories from "../components/categories";
+
+import Categories from "../components/Categories";
+import Recipes from "../components/Recipes";
 
 export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState("Chicken");
+  const [categories, setCategories] = useState([]);
+  const [meals, setMeals] = useState([]);
+
+  useEffect(() => {
+    getCategories();
+    getRecipes();
+  }, []);
+
+  const getCategories = async () => {
+    try {
+      const response = await axios.get(
+        "https://themealdb.com/api/json/v1/1/categories.php"
+      );
+
+      if (response && response.data) {
+        // Filter out the beef category
+        const filteredCategories = response.data.categories.filter(
+          (category: any) => category.strCategory !== "Beef"
+        );
+        setCategories(filteredCategories);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log("error: ", error.message);
+      } else {
+        console.log("error: ", String(error));
+      }
+    }
+  };
+
+  const getRecipes = async (category = "Chicken") => {
+    try {
+      const response = await axios.get(
+        `https://themealdb.com/api/json/v1/1/filter.php?c=${category}`
+      );
+
+      // console.log("Recipes: ", response.data);
+
+      if (response && response.data) {
+        setMeals(response.data.meals);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log("error: ", error.message);
+      } else {
+        console.log("error: ", String(error));
+      }
+    }
+  };
 
   return (
     <View className="flex-1 flex-col bg-white ">
@@ -72,11 +124,19 @@ export default function HomeScreen() {
         </View>
 
         {/* categories */}
+        <View className="mb-6">
+          {categories.length > 0 && (
+            <Categories
+              categories={categories}
+              activeCategory={activeCategory}
+              setActiveCategory={setActiveCategory}
+            />
+          )}
+        </View>
+
+        {/* recipes */}
         <View>
-          <Categories
-            activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory}
-          />
+          <Recipes meals={meals} />
         </View>
       </ScrollView>
     </View>

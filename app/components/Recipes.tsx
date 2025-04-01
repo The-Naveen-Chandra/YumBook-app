@@ -9,6 +9,7 @@ import MasonryList from "@react-native-seoul/masonry-list";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Loading from "./Loading";
 import { CachedImage } from "../helper/Image";
+import { useNavigation } from "@react-navigation/native";
 
 interface RecipesProps {
   meals: any;
@@ -16,6 +17,8 @@ interface RecipesProps {
 }
 
 export default function Recipes({ meals, categories }: RecipesProps) {
+  const navigation = useNavigation();
+
   return (
     <View className="mx-4">
       <Text
@@ -34,7 +37,9 @@ export default function Recipes({ meals, categories }: RecipesProps) {
             keyExtractor={(item): string => item.idMeal}
             numColumns={2}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item, i }) => <RecipeCard item={item} index={i} />}
+            renderItem={({ item, i }) => (
+              <RecipeCard item={item} index={i} navigation={navigation} />
+            )}
             onEndReachedThreshold={0.1}
           />
         )}
@@ -46,9 +51,10 @@ export default function Recipes({ meals, categories }: RecipesProps) {
 interface RecipeCardProps {
   item: any;
   index: number;
+  navigation: any;
 }
 
-const RecipeCard = ({ item, index }: RecipeCardProps) => {
+const RecipeCard = ({ item, index, navigation }: RecipeCardProps) => {
   let isEven = index % 2 === 0;
 
   return (
@@ -65,6 +71,7 @@ const RecipeCard = ({ item, index }: RecipeCardProps) => {
           paddingRight: isEven ? 8 : 0,
         }}
         className="flex justify-center mb-4 space-y-1"
+        onPress={() => navigation.navigate("RecipeDetail", { ...item })}
       >
         {/* <Image
           source={{ uri: item.strMealThumb }}
@@ -84,6 +91,7 @@ const RecipeCard = ({ item, index }: RecipeCardProps) => {
             borderRadius: 35,
           }}
           className="bg-black/5"
+          sharedTransitionTag={item.strMeal}
         />
         <Text
           className="font-semibold ml-2 mt-1 text-neutral-600"

@@ -5,9 +5,14 @@ import { ImageProps } from "react-native";
 
 type CachedImageProps = ImageProps & {
   uri: string;
+  sharedTransitionTag: string;
 };
 
-export const CachedImage: React.FC<CachedImageProps> = ({ uri, ...props }) => {
+export const CachedImage: React.FC<CachedImageProps> = ({
+  uri,
+  sharedTransitionTag,
+  ...props
+}) => {
   const [cachedSource, setCachedSource] = useState<{ uri: string } | null>(
     null
   );
@@ -41,5 +46,11 @@ export const CachedImage: React.FC<CachedImageProps> = ({ uri, ...props }) => {
     getCachedImage();
   }, [uri]);
 
-  return <Animated.Image source={cachedSource || { uri }} {...props} />;
+  return (
+    <Animated.Image
+      source={cachedSource || { uri }}
+      sharedTransitionTag={sharedTransitionTag}
+      {...props}
+    />
+  );
 };
